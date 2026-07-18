@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js + Feature-Sliced Design (FSD) Template
 
-## Getting Started
+Оптимизированный, чистый и масштабируемый шаблон для веб-приложений. Построен на базе **Next.js (App Router)** с жестким соблюдением архитектурной методологии **Feature-Sliced Design (FSD)**.
 
-First, run the development server:
+## 🚀 Быстрый старт
+
+### 1. Клонирование и установка
+Если вы используете этот проект как GitHub Template, нажмите кнопку **"Use this template"** вверху репозитория. Для локального клонирования:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <url-вашего-репозитория>
+cd <имя-папки>
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Запуск сервера разработки
+```bash
+npm run dev
+```
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏗️ Особенности архитектуры
 
-## Learn More
+В этом шаблоне используется подход **«Next.js в корне, FSD в папке `src/`»**. Это позволяет избежать конфликтов системного роутинга Next.js и архитектурных слоев FSD.
 
-To learn more about Next.js, take a look at the following resources:
+```text
+├── app/                          # СИСТЕМНЫЙ РОУТЕР NEXT.JS (в корне)
+│   ├── layout.tsx                # Корневой лейаут (подключает провайдеры)
+│   └── page.tsx                  # Тонкий роутер главной страницы (только ре-экспорт)
+│
+├── pages/                        # Пустая папка-заглушка (необходима для Next.js)
+│
+├── src/                          # ЧИСТАЯ АРХИТЕКТУРА FSD
+│   ├── app/                      # Инициализация приложения (провайдеры, стили)
+│   ├── pages/                    # Композиция страниц (слайсы страниц)
+│   ├── widgets/                  # Крупные самостоятельные UI-блоки (Header, Sidebar)
+│   ├── features/                 # Действия пользователя с бизнес-логикой (Auth, AddToCart)
+│   ├── entities/                 # Бизнес-сущности и модели данных (User, Product)
+│   └── shared/                   # Переиспользуемый базис (UI-kit, API, хелперы)
+│
+└── AGENTS.md                     # Системные инструкции для AI-ассистентов (Cursor/Copilot)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ⚠️ Золотые правила разработки в этом шаблоне
 
-## Deploy on Vercel
+1. **Тонкий роутинг:** Папка `app/` в корне отвечает *только* за роутинг, генерацию SEO-метаданных и Server Actions. Внутри файлов `app/**/page.tsx` запрещено писать разметку и бизнес-логику. Они должны просто импортировать страницу из `src/pages/` и отдать её.
+2. **Направление импортов:** Компоненты могут импортировать код только со слоев, находящихся ниже их по иерархии (`app -> pages -> widgets -> features -> entities -> shared`). Импорты снизу вверх (например, из `entities` в `features`) или между слайсами одного уровня строго запрещены.
+3. **Строгий Public API:** Каждый слайс (например, `src/shared/ui/button`) обязан иметь файл `index.ts`. Из него экспортируется только то, что предназначено для внешнего использования. Импорты в обход `index.ts` запрещены.
+4. **Граница сервер/клиент (Гидрация):** 
+   - Компоненты, создающие обработчики событий (`onClick`, `onSubmit`) или использующие хуки (`useState`, `useEffect`), обязаны содержать директиву `"use client"` в первой строчке.
+   - Старайтесь держать файлы страниц в `src/pages/` серверными для лучшего SEO. Спускайте интерактивность на уровень компонентов внутри страницы или в слои `features`/`widgets`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Технологический стек
+
+* **Фреймворк:** [Next.js (App Router)](https://nextjs.org)
+* **Язык:** [TypeScript](https://typescriptlang.org)
+* **Стилизация:** [Tailwind CSS](https://tailwindcss.com)
+* **Контекст для AI:** Файл `AGENTS.md` интегрирован для автоматического контроля архитектуры роботами-помощниками (Cursor, Windsurf, Copilot).
+
+---
+
+## 📝 Полезные команды
+
+* `npm run dev` — Запуск локального сервера разработки.
+* `npm run build` — Сборка проекта для продакшена.
+* `npm run start` — Запуск собранного продакшен-приложения.
+* `npm run lint` — Проверка кода линтером.
