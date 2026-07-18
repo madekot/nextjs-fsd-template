@@ -1,5 +1,5 @@
-import { HomePage } from "@/pages/home";
 import { Metadata } from "next";
+import { HomePage } from "@/pages/home";
 
 export const metadata: Metadata = {
   title: "Главная | Next.js + FSD Template",

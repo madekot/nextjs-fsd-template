@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// eslint-disable-next-line fsd/no-relative-imports
 import "./globals.css";
 
 const geistSans = Geist({
