@@ -1,5 +1,22 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Архитектурные правила проекта (Feature-Sliced Design + Next.js)
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+Вы работаете в проекте, построенном по методологии **Feature-Sliced Design (FSD)** с интеграцией **Next.js App Router**. СТРОГО соблюдайте следующие правила.
+
+## Структура проекта
+
+- `app/` (в корне) — Системный роутер Next.js. Должен содержать ТОЛЬКО тонкие файлы маршрутов (`page.tsx`, `layout.tsx`, `loading.tsx`), метаданные и Server Actions. Вся логика находится в `src/`.
+- `pages/` (в корне) — Пустая папка-заглушка с `.gitkeep`. Нужна для предотвращения конфликтов сканирования Next.js. Не трогать.
+- `src/` — Основной архитектурный код. Разделен на слои:
+  - `app/` — Инициализация приложения, глобальные провайдеры контекста, стили.
+  - `pages/` — Композиция страниц. Сюда импортируются виджеты и фичи.
+  - `widgets/` — Самостоятельные крупные блоки интерфейса (Header, Sidebar, ProductGrid).
+  - `features/` — Действия пользователя, несущие бизнес-ценность (AuthByUsername, AddToCart).
+  - `entities/` — Бизнес-сущности и модели данных (User, Product, Order).
+  - `shared/` — Инфраструктурный код, UI-кит приложения, общие утилиты и API-клиенты.
+
+## Правила импортов и зависимостей
+
+1. **Направление зависимостей:** Компоненты могут импортировать код только со слоев, находящихся НИЖЕ их по иерархии (`app -> pages -> widgets -> features -> entities -> shared`). Импорты вверх или на своем уровне (между разными слайсами) ЗАПРЕЩЕНЫ.
+2. **Public API (Файлы `index.ts`):** Каждый слайс (например, `src/features/auth-by-username`) обязан иметь `index.ts`. Из него экспортируется только то, что доступно для внешнего использования.
+   - ЗАПРЕЩЕНО импортировать код в обход Public API. Например, импорт `import { Form } from '@/features/auth/ui/Form'` — это грубое нарушение. Правильно: `import { AuthForm } from '@/features/auth'`.
+3. **Алиасы путей:** Всегда используйте настроенные Path Aliases (`@/pages/*`, `@/widgets/*` и т.д.). Импорты вида `../../` между слоями запрещены.
